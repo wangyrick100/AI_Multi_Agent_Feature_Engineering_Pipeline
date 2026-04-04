@@ -1,0 +1,41 @@
+# Core data & ML libraries
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+
+# Gradient boosting & SHAP
+xgboost>=2.0.0
+lightgbm>=4.1.0
+shap>=0.43.0
+
+# Data validation & serialization
+pydantic>=2.4.0
+pyarrow>=13.0.0
+
+# UI & visualization
+streamlit>=1.28.0
+plotly>=5.17.0
+altair>=5.1.0
+seaborn>=0.12.0
+matplotlib>=3.7.0
+streamlit-aggrid>=0.3.4
+streamlit-extras>=0.3.5
+
+# Graph analysis
+networkx>=3.1
+
+# Text / semantic features (optional — graceful fallback if not installed)
+# sentence-transformers>=2.2.2
+# openai>=1.0.0
+
+# Utilities
+tqdm>=4.65.0
+python-dotenv>=1.0.0
+joblib>=1.3.0
+colorlog>=6.7.0
+rich>=13.5.0
+typer>=0.9.0
+tabulate>=0.9.0
+openpyxl>=3.1.0
