@@ -58,6 +58,7 @@ def _fdef(
     tags: Optional[List[str]] = None,
     requires_entity_grouping: bool = False,
     requires_time_ordering: bool = False,
+    requires_target: bool = False,
     template_params: Optional[Dict[str, Any]] = None,
     display_name: str = "",
 ) -> FeatureDefinition:
@@ -74,6 +75,7 @@ def _fdef(
         tags=tags or [],
         requires_entity_grouping=requires_entity_grouping,
         requires_time_ordering=requires_time_ordering,
+        requires_target=requires_target,
         template_params=template_params or {},
     )
 

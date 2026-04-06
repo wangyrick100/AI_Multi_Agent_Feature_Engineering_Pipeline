@@ -100,6 +100,15 @@ class Config:
     n_jobs: int = -1   # parallelism (-1 = all cores)
     random_seed: int = 42
 
+    def set_output_dir(self, output_dir: Path | str) -> None:
+        """Update the output root and all derived artifact paths together."""
+        output_path = Path(output_dir)
+        self.output_dir = output_path
+        self.feature_store_path = output_path / "feature_store.parquet"
+        self.governance_db_path = output_path / "governance.json"
+        self.pipeline_cache_dir = output_path / "cache"
+        self.log_file = output_path / "pipeline.log"
+
     def ensure_dirs(self) -> None:
         """Create output/cache directories if they don't exist."""
         for d in [self.output_dir, self.pipeline_cache_dir, self.data_dir]:

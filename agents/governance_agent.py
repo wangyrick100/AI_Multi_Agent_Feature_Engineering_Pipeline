@@ -86,7 +86,7 @@ class FeatureGovernanceAgent(BaseAgent):
         ))
 
         # Bias checks
-        bias_reports = self._check_bias(feat_def, df)
+        bias_reports = self._check_bias(feat_def, df, state)
 
         # Reproducibility hash (hash of python_code + source_columns)
         hash_input = feat_def.python_code + str(sorted(feat_def.source_columns))
@@ -119,15 +119,16 @@ class FeatureGovernanceAgent(BaseAgent):
     # ── Bias checking ────────────────────────────────────────────────────────
 
     def _check_bias(
-        self, feat_def: FeatureDefinition, df: pd.DataFrame
+        self,
+        feat_def: FeatureDefinition,
+        df: pd.DataFrame,
+        state: PipelineState,
     ) -> List[BiasReport]:
         reports: List[BiasReport] = []
         if not self.config.track_lineage:
             return reports
 
-        feature_df: Optional[pd.DataFrame] = None
-        # Try to get constructed feature value
-        constructed_df = getattr(df, "_feature_df", None)
+        constructed_df = state.__dict__.get("constructed_df")
         if constructed_df is None:
             return reports
 

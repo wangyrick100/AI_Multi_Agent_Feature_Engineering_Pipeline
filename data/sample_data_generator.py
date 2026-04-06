@@ -20,6 +20,7 @@ Usage
 from __future__ import annotations
 
 import warnings
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -205,5 +206,3 @@ if __name__ == "__main__":
     print(df.dtypes)
     print(df.describe())
 
-
-from pathlib import Path

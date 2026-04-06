@@ -223,12 +223,12 @@ def _build_eval_df(
         fid = d.get("feature_id", "")
         rows.append({
             "feature_id": fid,
-            "name": d.get("name", fid),
+            "name": d.get("feature_name", d.get("name", fid)),
             "iv_score": _safe_float(d.get("iv_score")),
-            "shap_importance": _safe_float(d.get("shap_importance")),
-            "mi_score": _safe_float(d.get("mi_score")),
+            "shap_importance": _safe_float(d.get("shap_mean_abs", d.get("shap_importance"))),
+            "mi_score": _safe_float(d.get("mutual_information", d.get("mi_score"))),
             "psi_score": _safe_float(d.get("psi_score")),
-            "pearson_r": _safe_float(d.get("pearson_r")),
+            "pearson_r": _safe_float(d.get("pearson_corr_with_target", d.get("pearson_r"))),
             "composite_score": _safe_float(d.get("composite_score")),
             "stability_label": d.get("stability_label", "—"),
             "rank": d.get("rank"),

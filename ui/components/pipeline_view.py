@@ -144,11 +144,11 @@ def render_pipeline_summary(state: Any) -> None:
     st.subheader("📈 Pipeline Summary")
 
     candidates = getattr(state, "feature_candidates", []) or []
-    selected = getattr(state, "selected_features", None)
+    selected = getattr(state, "selection_result", None)
     selected_ids = (selected.selected_feature_ids if selected else []) or []
-    evaluations = getattr(state, "evaluations", []) or []
-    fb = getattr(state, "feedback_report", None)
-    iterations = (fb.iteration if fb else 0) if fb else 0
+    evaluations = getattr(state, "feature_evaluations", []) or []
+    feedback_reports = getattr(state, "feedback_reports", []) or []
+    iterations = len(feedback_reports)
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("💡 Candidates generated", len(candidates))

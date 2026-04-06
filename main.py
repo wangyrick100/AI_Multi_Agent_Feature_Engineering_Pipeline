@@ -14,18 +14,19 @@ Examples
 """
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
-from typing import Optional
 
 # ── Make project root importable ─────────────────────────────────────────────
 sys.path.insert(0, str(Path(__file__).parent))
 
+import pandas as pd
 import typer
 from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
 from rich.table import Table
 
 app = typer.Typer(
@@ -36,6 +37,28 @@ app = typer.Typer(
 console = Console()
 
 
+def _load_dataframe(path: Path) -> pd.DataFrame:
+    if path.suffix.lower() == ".parquet":
+        return pd.read_parquet(path)
+    return pd.read_csv(path)
+
+
+def _selected_definitions(state: object) -> list:
+    if hasattr(state, "get_selected_definitions"):
+        selected = state.get_selected_definitions()
+        if selected:
+            return selected
+    return getattr(state, "constructed_features", []) or []
+
+
+def _stage_label(stage_name: str, status: str) -> str:
+    if status == "done":
+        return f"[green]OK[/green] {stage_name}"
+    if status == "error":
+        return f"[red]FAIL[/red] {stage_name}"
+    return f"[yellow]...[/yellow] {stage_name}"
+
+
 # ── Commands ──────────────────────────────────────────────────────────────────
 
 @app.command()
@@ -43,7 +66,7 @@ def run(
     data: Path = typer.Option(..., "--data", "-d", help="Path to CSV or Parquet dataset."),
     target: str = typer.Option(..., "--target", "-t", help="Name of the target column."),
     task_type: str = typer.Option("classification", "--task", help="'classification' or 'regression'."),
-    output_dir: Path = typer.Option(Path("output"), "--output", "-o", help="Directory for all outputs."),
+    output_dir: Path = typer.Option(Path("outputs"), "--output", "-o", help="Directory for all outputs."),
     max_features: int = typer.Option(50, "--max-features", help="Max features to select."),
     max_iter: int = typer.Option(3, "--max-iter", help="Max feedback iterations."),
     selection_method: str = typer.Option("pareto", "--selection", help="pareto | greedy | lasso"),
@@ -51,18 +74,18 @@ def run(
     export_py: bool = typer.Option(True, "--python/--no-python", help="Export Python module."),
 ) -> None:
     """Run the full feature engineering pipeline on a dataset."""
-    import pandas as pd
     from core.config import Config
     from core.orchestrator import FeatureEngineeringOrchestrator
     from pipelines.python_pipeline import PythonPipeline
     from pipelines.sql_pipeline import SQLPipeline
+    from utils.feature_store import FeatureStore
 
     # ── Load data ─────────────────────────────────────────────────────────────
     console.rule("[bold blue]🧠 Feature Engineering System")
     console.print(f"[green]Loading data:[/green] {data}")
 
     try:
-        df = pd.read_parquet(data) if str(data).endswith(".parquet") else pd.read_csv(data)
+        df = _load_dataframe(data)
     except Exception as e:
         console.print(f"[red]Failed to load data: {e}[/red]")
         raise typer.Exit(1)
@@ -72,32 +95,36 @@ def run(
 
     # ── Config ────────────────────────────────────────────────────────────────
     cfg = Config()
-    object.__setattr__(cfg, "max_selected_features", max_features)
-    object.__setattr__(cfg, "max_feedback_iterations", max_iter)
-    object.__setattr__(cfg, "selection_method", selection_method)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    object.__setattr__(cfg, "output_dir", str(output_dir))
+    cfg.max_selected_features = max_features
+    cfg.max_feedback_iterations = max_iter
+    cfg.selection_method = selection_method
+    cfg.output_python = export_py
+    cfg.output_sql = export_sql
+    cfg.set_output_dir(output_dir)
+    cfg.ensure_dirs()
 
     # ── Run ───────────────────────────────────────────────────────────────────
-    stage_times: dict = {}
-
     def progress_cb(stage: str, status: str, metrics: dict) -> None:
-        if status == "done":
+        label = _stage_label(stage, status)
+        if status in {"done", "error"}:
             elapsed = metrics.get("elapsed_s", "?")
+            console.print(f"  {label:<40} {elapsed}s")
+            return
             console.print(f"  [green]✓[/green] {stage:<20} {elapsed}s")
-        elif status == "running":
+        else:
+            console.print(f"  {label}")
+            return
             console.print(f"  [yellow]⚙[/yellow] {stage:<20}", end="\r")
 
     console.print("\n[bold]Pipeline stages:[/bold]")
     t_start = time.perf_counter()
 
     try:
-        orch = FeatureEngineeringOrchestrator(config=cfg)
+        orch = FeatureEngineeringOrchestrator(config=cfg, progress_callback=progress_cb)
         state = orch.run(
             df=df,
             target_column=target,
             task_type=task_type,
-            progress_callback=progress_cb,
         )
     except Exception as e:
         console.print(f"[red]Pipeline failed: {e}[/red]")
@@ -111,11 +138,7 @@ def run(
     _print_summary(state)
 
     # ── Exports ──────────────────────────────────────────────────────────────
-    candidates = getattr(state, "feature_candidates", []) or []
-    sel = getattr(state, "selected_features", None)
-    selected_ids = (sel.selected_feature_ids if sel else []) or []
-    selected_defs = [c for c in candidates
-                     if getattr(c, "feature_id", None) in selected_ids]
+    selected_defs = _selected_definitions(state)
 
     if export_py and selected_defs:
         py_path = output_dir / "features_transform.py"
@@ -126,16 +149,18 @@ def run(
 
     if export_sql and selected_defs:
         sql_path = output_dir / "features.sql"
-        sql_pipe = SQLPipeline(selected_defs, source_table="raw_events")
+        sql_pipe = SQLPipeline(
+            selected_defs,
+            source_table="raw_events",
+            dialect=cfg.sql_dialect,
+        )
         sql_pipe.save_sql(str(sql_path))
         console.print(f"[green]SQL script   →[/green] {sql_path}")
 
-    # Feature store persist
     try:
-        from utils.feature_store import FeatureStore
         store = FeatureStore(store_root=str(output_dir / "feature_store"))
-        store.register_many(candidates)
-        run_id = f"run_{int(time.time())}"
+        store.register_many(getattr(state, "constructed_features", []) or [])
+        run_id = getattr(state, "run_id", f"run_{int(time.time())}")
         constructed_df = state.__dict__.get("constructed_df")
         if constructed_df is not None:
             store.save_dataframe(constructed_df, run_id=run_id)
@@ -153,8 +178,6 @@ def demo() -> None:
     console.print("[cyan]Generating synthetic dataset…[/cyan]")
     df = generate_transactions(n_users=400, n_rows=8_000, seed=42)
 
-    # Invoke the run logic by setting up a temporary file
-    import tempfile, os
     with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
         tmp_path = tmp.name
     df.to_parquet(tmp_path, index=False)
@@ -178,7 +201,6 @@ def demo() -> None:
 @app.command()
 def ui() -> None:
     """Launch the Streamlit web UI."""
-    import subprocess
     console.print("[bold green]Launching Streamlit UI…[/bold green]")
     app_path = Path(__file__).parent / "ui" / "app.py"
     subprocess.run(
@@ -192,8 +214,8 @@ def ui() -> None:
 
 def _print_summary(state: object) -> None:
     candidates = getattr(state, "feature_candidates", []) or []
-    evaluations = getattr(state, "evaluations", []) or []
-    sel = getattr(state, "selected_features", None)
+    evaluations = getattr(state, "feature_evaluations", []) or []
+    sel = getattr(state, "selection_result", None)
     selected_ids = (sel.selected_feature_ids if sel else []) or []
 
     table = Table(title="Pipeline Summary", show_header=True, header_style="bold cyan")
@@ -205,9 +227,9 @@ def _print_summary(state: object) -> None:
     if evaluations:
         top_iv = max((getattr(e, "iv_score", 0) or 0 for e in evaluations), default=0)
         table.add_row("Best IV score", f"{top_iv:.4f}")
-    fb = getattr(state, "feedback_report", None)
-    if fb:
-        table.add_row("Feedback iterations", str(getattr(fb, "iteration", 0)))
+    feedback_reports = getattr(state, "feedback_reports", []) or []
+    if feedback_reports:
+        table.add_row("Feedback iterations", str(len(feedback_reports)))
 
     console.print(table)
 
@@ -227,9 +249,9 @@ def _print_summary(state: object) -> None:
 
         for ev in sel_evals:
             feat_table.add_row(
-                getattr(ev, "feature_id", "?"),
+                getattr(ev, "feature_name", "?"),
                 f"{getattr(ev, 'iv_score', 0) or 0:.4f}",
-                f"{getattr(ev, 'shap_importance', 0) or 0:.4f}",
+                f"{getattr(ev, 'shap_mean_abs', 0) or 0:.4f}",
                 f"{getattr(ev, 'composite_score', 0) or 0:.4f}",
             )
         console.print(feat_table)

@@ -79,6 +79,27 @@ def _init_state() -> None:
 
 _init_state()
 
+
+def _selection_result(state: Any) -> Any:
+    return getattr(state, "selection_result", None)
+
+
+def _selected_ids(state: Any) -> List[str]:
+    result = _selection_result(state)
+    return (result.selected_feature_ids if result else []) or []
+
+
+def _evaluations(state: Any) -> List[Any]:
+    return getattr(state, "feature_evaluations", []) or []
+
+
+def _selected_definitions(state: Any) -> List[Any]:
+    if hasattr(state, "get_selected_definitions"):
+        selected = state.get_selected_definitions()
+        if selected:
+            return selected
+    return getattr(state, "constructed_features", []) or []
+
 # ── Sidebar navigation ────────────────────────────────────────────────────────
 PAGES = [
     "🏠 Home",
@@ -108,8 +129,7 @@ with st.sidebar:
     state = st.session_state.get("pipeline_state")
     if state:
         candidates = getattr(state, "feature_candidates", []) or []
-        sel = getattr(state, "selected_features", None)
-        sel_ids = (sel.selected_feature_ids if sel else []) or []
+        sel_ids = _selected_ids(state)
         st.metric("Candidates", len(candidates))
         st.metric("Selected", len(sel_ids))
     else:
@@ -227,7 +247,7 @@ def page_run_pipeline() -> None:
             "max_selected_features": max_features,
             "max_feedback_iterations": max_iter,
             "selection_method": selection_method,
-            "min_iv_threshold": min_iv,
+            "min_iv_for_selection": min_iv,
             "shap_max_samples": shap_samples,
             "correlation_redundancy_threshold": corr_thresh,
         })
@@ -268,23 +288,24 @@ def _run_pipeline(
     cfg = Config()
     for k, v in overrides.items():
         if hasattr(cfg, k):
-            object.__setattr__(cfg, k, v)
-
-    progress_placeholder = st.empty()
-    status_placeholder = st.empty()
+            setattr(cfg, k, v)
 
     def progress_cb(stage: str, status: str, metrics: Dict) -> None:
-        st.session_state["stage_statuses"][stage] = status
-        st.session_state["stage_metrics"][stage] = metrics
+        stage_key = metrics.get("stage_key", stage)
+        st.session_state["stage_statuses"][stage_key] = status
+        stage_metrics = dict(metrics)
+        elapsed = stage_metrics.get("elapsed_s")
+        if elapsed is not None:
+            stage_metrics["elapsed_s"] = f"{elapsed:.2f}s"
+        st.session_state["stage_metrics"][stage_key] = stage_metrics
 
     try:
-        orch = FeatureEngineeringOrchestrator(config=cfg)
+        orch = FeatureEngineeringOrchestrator(config=cfg, progress_callback=progress_cb)
         with st.spinner("🔄 Pipeline running…"):
             state = orch.run(
                 df=df,
                 target_column=target_col or df.columns[-1],
                 task_type=task_type,
-                progress_callback=progress_cb,
             )
         st.session_state["pipeline_state"] = state
         st.session_state["pipeline_done"] = True
@@ -304,9 +325,8 @@ def page_features() -> None:
         st.warning("Pipeline has not been run yet.")
         return
     candidates = getattr(state, "feature_candidates", []) or []
-    evaluations = getattr(state, "evaluations", []) or []
-    sel = getattr(state, "selected_features", None)
-    selected_ids = (sel.selected_feature_ids if sel else []) or []
+    evaluations = _evaluations(state)
+    selected_ids = _selected_ids(state)
     render_feature_explorer(candidates, evaluations, selected_ids)
 
 
@@ -315,10 +335,9 @@ def page_evaluation() -> None:
     if state is None:
         st.warning("Pipeline has not been run yet.")
         return
-    evaluations = getattr(state, "evaluations", []) or []
+    evaluations = _evaluations(state)
     candidates = getattr(state, "feature_candidates", []) or []
-    sel = getattr(state, "selected_features", None)
-    selected_ids = (sel.selected_feature_ids if sel else []) or []
+    selected_ids = _selected_ids(state)
     render_evaluation_dashboard(evaluations, candidates, selected_ids)
 
 
@@ -329,7 +348,7 @@ def page_selection() -> None:
         st.warning("Pipeline has not been run yet.")
         return
 
-    sel = getattr(state, "selected_features", None)
+    sel = _selection_result(state)
     if sel is None:
         st.info("Selection results not available.")
         return
@@ -381,20 +400,17 @@ def page_governance() -> None:
             col_l, col_r = st.columns(2)
             with col_l:
                 st.markdown(f"**Reproducibility hash:** `{d.get('reproducibility_hash', '—')[:16]}…`")
-                st.markdown(f"**PII adjacent:** `{d.get('pii_adjacent', False)}`")
-                st.markdown(f"**Bias flags:** `{d.get('bias_flags', [])}`")
+                st.markdown(f"**PII adjacent:** `{d.get('is_pii_adjacent', False)}`")
+                st.markdown(f"**Tags:** `{d.get('tags', [])}`")
             with col_r:
-                bias_report = d.get("bias_report", {})
+                bias_report = d.get("bias_reports", [])
                 if bias_report:
                     try:
                         import plotly.express as px
-                        bias_df = pd.DataFrame(
-                            [(k, v) for k, v in bias_report.items()],
-                            columns=["protected_group", "demographic_parity_diff"],
-                        )
+                        bias_df = pd.DataFrame(bias_report)
                         if not bias_df.empty:
                             fig = px.bar(
-                                bias_df, x="protected_group",
+                                bias_df, x="protected_column",
                                 y="demographic_parity_diff",
                                 title="Demographic Parity Difference",
                                 color_discrete_sequence=["#F59E0B"],
@@ -415,10 +431,9 @@ def page_export() -> None:
         st.warning("Pipeline has not been run yet.")
         return
 
-    sel = getattr(state, "selected_features", None)
-    selected_ids = (sel.selected_feature_ids if sel else []) or []
+    selected_ids = _selected_ids(state)
     candidates = getattr(state, "feature_candidates", []) or []
-    evaluations = getattr(state, "evaluations", []) or []
+    evaluations = _evaluations(state)
 
     st.info(
         f"Export **{len(selected_ids)} selected features** in your preferred format below."
@@ -428,8 +443,7 @@ def page_export() -> None:
         ["🐍 Python Module", "🗄️ SQL Script", "📋 JSON Definitions", "📄 Governance Report"]
     )
 
-    selected_defs = [c for c in candidates
-                     if (c.feature_id if hasattr(c, "feature_id") else c.get("feature_id")) in selected_ids]
+    selected_defs = _selected_definitions(state)
 
     with tab_py:
         st.markdown("**Standalone Python transform class** — copy into any project.")
@@ -485,7 +499,7 @@ def page_export() -> None:
             "n_selected": len(selected_ids),
             "selected_feature_ids": selected_ids,
             "evaluation_summary": [
-                {k: getattr(ev, k, None) for k in ["feature_id", "iv_score", "shap_importance", "composite_score", "rank"]}
+                {k: getattr(ev, k, None) for k in ["feature_id", "iv_score", "shap_mean_abs", "composite_score", "rank"]}
                 for ev in (evaluations or [])
             ],
         }

@@ -1,0 +1,22 @@
+{
+  "run_id": "e7914061-d17",
+  "completed_at": "2026-04-06T03:48:33.387177",
+  "n_candidates": 244,
+  "n_constructed": 168,
+  "n_selected": 3,
+  "iterations": 0,
+  "agent_timings": {
+    "SchemaUnderstandingAgent": 0.047,
+    "FeatureIdeationAgent": 0.006,
+    "FeatureConstructionAgent": 40.938,
+    "FeatureEvaluationAgent": 1.738,
+    "FeatureSelectionAgent": 0.001,
+    "FeatureGovernanceAgent": 0.015
+  },
+  "errors": [],
+  "warnings": [
+    "Construction skipped transaction_id__days_since_last_user_id_change: Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`",
+    "Construction skipped transaction_id__days_since_last_category_change: Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`",
+    "Construction skipped transaction_id__days_since_last_merchant_id_change: Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`"
+  ]
+}

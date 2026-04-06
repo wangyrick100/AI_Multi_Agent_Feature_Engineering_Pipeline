@@ -35,7 +35,7 @@ from agents.governance_agent import FeatureGovernanceAgent
 from agents.feedback_agent import FeedbackOptimizationAgent
 
 
-ProgressCallback = Callable[[str, int, int], None]   # (stage_name, current, total)
+ProgressCallback = Callable[[str, str, Dict[str, Any]], None]
 
 
 class FeatureEngineeringOrchestrator:
@@ -60,6 +60,15 @@ class FeatureEngineeringOrchestrator:
         "FeatureGovernance",
         "FeedbackOptimization",
     ]
+    STAGE_KEYS = {
+        "SchemaUnderstanding": "schema",
+        "FeatureIdeation": "ideation",
+        "FeatureConstruction": "construction",
+        "FeatureEvaluation": "evaluation",
+        "FeatureSelection": "selection",
+        "FeatureGovernance": "governance",
+        "FeedbackOptimization": "feedback",
+    }
 
     def __init__(
         self,
@@ -90,6 +99,7 @@ class FeatureEngineeringOrchestrator:
         task_type: str = "classification",
         domain_hints: Optional[Dict[str, Any]] = None,
         run_feedback_loop: bool = True,
+        progress_callback: Optional[ProgressCallback] = None,
     ) -> PipelineState:
         """
         Execute the complete pipeline and return the final PipelineState.
@@ -115,48 +125,49 @@ class FeatureEngineeringOrchestrator:
         )
 
         total_stages = len(self.PIPELINE_STAGES)
+        callback = progress_callback or self.progress_callback
         t_start = time.perf_counter()
 
         # ── Stage 1: Schema Understanding ────────────────────────────────────
         state = self._execute_stage(
-            self.schema_agent, df, state, "SchemaUnderstanding", 1, total_stages
+            self.schema_agent, df, state, "SchemaUnderstanding", 1, total_stages, callback
         )
         if state.status.startswith("error"):
             return state
 
         # ── Stage 2: Feature Ideation ─────────────────────────────────────────
         state = self._execute_stage(
-            self.ideation_agent, df, state, "FeatureIdeation", 2, total_stages
+            self.ideation_agent, df, state, "FeatureIdeation", 2, total_stages, callback
         )
         if state.status.startswith("error"):
             return state
 
         # ── Stage 3: Feature Construction ─────────────────────────────────────
         state = self._execute_stage(
-            self.construction_agent, df, state, "FeatureConstruction", 3, total_stages
+            self.construction_agent, df, state, "FeatureConstruction", 3, total_stages, callback
         )
         if state.status.startswith("error"):
             return state
 
         # ── Stage 4: Feature Evaluation ───────────────────────────────────────
         state = self._execute_stage(
-            self.evaluation_agent, df, state, "FeatureEvaluation", 4, total_stages
+            self.evaluation_agent, df, state, "FeatureEvaluation", 4, total_stages, callback
         )
         # Evaluation failure is non-fatal
 
         # ── Stage 5: Feature Selection ────────────────────────────────────────
         state = self._execute_stage(
-            self.selection_agent, df, state, "FeatureSelection", 5, total_stages
+            self.selection_agent, df, state, "FeatureSelection", 5, total_stages, callback
         )
 
         # ── Stage 6: Governance ───────────────────────────────────────────────
         state = self._execute_stage(
-            self.governance_agent, df, state, "FeatureGovernance", 6, total_stages
+            self.governance_agent, df, state, "FeatureGovernance", 6, total_stages, callback
         )
 
         # ── Stage 7: Feedback Loop ────────────────────────────────────────────
         if run_feedback_loop:
-            state = self._run_feedback_loop(df, state, total_stages)
+            state = self._run_feedback_loop(df, state, total_stages, callback)
 
         elapsed = time.perf_counter() - t_start
         state.status = "completed"
@@ -203,18 +214,23 @@ class FeatureEngineeringOrchestrator:
         name: str,
         step: int,
         total: int,
+        callback: Optional[ProgressCallback] = None,
     ) -> PipelineState:
         self.logger.info("── Stage %d/%d: %s ──", step, total, name)
+        self._emit_progress(callback, name, "running", step, total, state)
+        started = time.perf_counter()
         state = agent.run(df, state)
-        if self.progress_callback:
-            try:
-                self.progress_callback(name, step, total)
-            except Exception:
-                pass
+        elapsed = round(time.perf_counter() - started, 3)
+        status = "error" if state.status.startswith("error") else "done"
+        self._emit_progress(callback, name, status, step, total, state, elapsed_s=elapsed)
         return state
 
     def _run_feedback_loop(
-        self, df: pd.DataFrame, state: PipelineState, total_stages: int
+        self,
+        df: pd.DataFrame,
+        state: PipelineState,
+        total_stages: int,
+        callback: Optional[ProgressCallback] = None,
     ) -> PipelineState:
         max_iters = self.config.max_feedback_iterations
         self.logger.info("── Feedback Loop (max %d iterations) ──", max_iters)
@@ -222,7 +238,7 @@ class FeatureEngineeringOrchestrator:
         for i in range(max_iters):
             state = self._execute_stage(
                 self.feedback_agent, df, state,
-                f"FeedbackOptimization[{i+1}]", 7, total_stages
+                f"FeedbackOptimization[{i+1}]", 7, total_stages, callback
             )
             if not state.feedback_reports:
                 break
@@ -240,7 +256,7 @@ class FeatureEngineeringOrchestrator:
                 old_candidates = state.feature_candidates
                 state = self._execute_stage(
                     self.ideation_agent, df, state,
-                    f"FeatureIdeation[re-{i+1}]", 2, total_stages
+                    f"FeatureIdeation[re-{i+1}]", 2, total_stages, callback
                 )
                 # Merge: keep old + new unique
                 old_names = {f.name for f in old_candidates}
@@ -265,15 +281,44 @@ class FeatureEngineeringOrchestrator:
                     # Re-evaluate
                     state = self._execute_stage(
                         self.evaluation_agent, df, state,
-                        f"FeatureEvaluation[re-{i+1}]", 4, total_stages
+                        f"FeatureEvaluation[re-{i+1}]", 4, total_stages, callback
                     )
                     state = self._execute_stage(
                         self.selection_agent, df, state,
-                        f"FeatureSelection[re-{i+1}]", 5, total_stages
+                        f"FeatureSelection[re-{i+1}]", 5, total_stages, callback
                     )
         return state
 
     # ── Logging & persistence ────────────────────────────────────────────────
+
+    def _emit_progress(
+        self,
+        callback: Optional[ProgressCallback],
+        name: str,
+        status: str,
+        step: int,
+        total: int,
+        state: PipelineState,
+        elapsed_s: Optional[float] = None,
+    ) -> None:
+        if callback is None:
+            return
+
+        base_name = name.split("[", 1)[0]
+        payload: Dict[str, Any] = {
+            "stage_key": self.STAGE_KEYS.get(base_name, base_name.lower()),
+            "stage_name": name,
+            "step": step,
+            "total_steps": total,
+            "iteration": state.iteration,
+        }
+        if elapsed_s is not None:
+            payload["elapsed_s"] = elapsed_s
+
+        try:
+            callback(name, status, payload)
+        except Exception:
+            pass
 
     def _setup_logging(self) -> None:
         log_level = getattr(logging, self.config.log_level, logging.INFO)

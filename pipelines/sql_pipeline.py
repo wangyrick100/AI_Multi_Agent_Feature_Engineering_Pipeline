@@ -84,12 +84,7 @@ class SQLPipeline:
         for d in self._defs:
             sql_expr = d.get("sql_code", "")
             name = d.get("name", d.get("feature_id", "unknown"))
-            if sql_expr and sql_expr.strip():
-                clean_expr = sql_expr.strip().rstrip(",")
-                columns.append(f"  {clean_expr} AS `{name}`" if self.dialect == BIGQUERY
-                                else f"  {clean_expr} AS {name}")
-            else:
-                columns.append(f"  NULL AS {self._quote(name)}")
+            columns.append(f"  {self._render_expression(sql_expr, name)}")
 
         col_block = ",\n".join(columns)
         select_sql = f"SELECT\n{col_block}\nFROM {self._quote_table(self.source_table)}"
@@ -124,10 +119,7 @@ class SQLPipeline:
             for d in defs:
                 sql_expr = d.get("sql_code", "").strip().rstrip(",")
                 name = d.get("name", "unknown")
-                if sql_expr:
-                    inner_cols.append(f"  {sql_expr} AS {self._quote(name)}")
-                else:
-                    inner_cols.append(f"  NULL AS {self._quote(name)}")
+                inner_cols.append(f"  {self._render_expression(sql_expr, name)}")
             cte_block = (
                 f"{cte_name} AS (\n"
                 f"  SELECT\n"
@@ -188,6 +180,21 @@ class SQLPipeline:
         if self.dialect == BIGQUERY:
             return f"`{name}`"
         return f'"{name}"'
+
+    def _render_expression(self, sql_expr: str, name: str) -> str:
+        cleaned = (sql_expr or "").strip().rstrip(",")
+        if not cleaned:
+            return f"NULL AS {self._quote(name)}"
+
+        lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
+        non_comment_lines = [line for line in lines if not line.startswith("--")]
+        if not non_comment_lines:
+            return f"NULL AS {self._quote(name)}"
+
+        expr = "\n  ".join(non_comment_lines)
+        if " AS " in expr.upper():
+            return expr
+        return f"{expr} AS {self._quote(name)}"
 
     def _quote_table(self, name: str) -> str:
         if "." in name:  # already qualified

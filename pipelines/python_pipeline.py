@@ -84,7 +84,7 @@ class PythonPipeline:
             name = d.get("name", fid)
             code = d.get("python_code", "")
 
-            fn = self._compile_code(name, code)
+            fn = self._compile_feature_code(name, code)
             self._steps.append(_FeatureStep(fid, name, fn, code))
 
         logger.info("PythonPipeline: built %d feature steps.", len(self._steps))
@@ -129,15 +129,44 @@ def _feature_fn(df):
 
     # ── Transform ────────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _compile_feature_code(name: str, code: str) -> Callable:
+        """Compile construction-agent code into a callable that returns one feature series."""
+        if not code or not code.strip():
+            return lambda df: pd.Series(np.nan, index=df.index, name=name)
+
+        try:
+            compiled = compile(code, f"<feature:{name}>", "exec")
+        except SyntaxError:
+            return lambda df: pd.Series(np.nan, index=df.index, name=name)
+
+        safe_name = name.replace(" ", "_").replace("-", "_")
+
+        def _feature_fn(df: pd.DataFrame) -> pd.Series:
+            local_df = df.copy()
+            local_ns: Dict[str, Any] = {"np": np, "pd": pd, "df": local_df}
+            exec(compiled, local_ns, local_ns)  # noqa: S102
+
+            if name in local_df.columns:
+                return local_df[name]
+
+            maybe_series = local_ns.get(safe_name)
+            if isinstance(maybe_series, pd.Series):
+                return maybe_series.rename(name)
+
+            return pd.Series(np.nan, index=df.index, name=name)
+
+        return _feature_fn
+
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """Apply all steps to *df* and return original columns + new features."""
         out = df.copy()
         for step in self._steps:
             if self.fail_fast:
-                out[step.name] = step.run(df)
+                out[step.name] = step.run(out)
             else:
                 try:
-                    out[step.name] = step.run(df)
+                    out[step.name] = step.run(out)
                 except Exception as e:
                     logger.warning("Step '%s' raised: %s", step.name, e)
                     out[step.name] = np.nan
@@ -174,13 +203,14 @@ def _feature_fn(df):
         buf.write('    """Applies engineered features to a raw DataFrame."""\n\n')
         buf.write("    def transform(self, df: pd.DataFrame) -> pd.DataFrame:\n")
         buf.write("        out = df.copy()\n")
+        buf.write("        df = out\n")
         for step in self._steps:
             buf.write(f"\n        # ── {step.name} ──\n")
             if step.code and step.code.strip():
                 for line in step.code.strip().splitlines():
                     buf.write(f"        {line}\n")
-                safe_name = step.name.replace(" ", "_").replace("-", "_")
-                buf.write(f"        out['{step.name}'] = {safe_name} if '{safe_name}' in dir() else np.nan\n")
+                buf.write(f"        if '{step.name}' not in out.columns:\n")
+                buf.write(f"            out['{step.name}'] = np.nan\n")
             else:
                 buf.write(f"        out['{step.name}'] = np.nan  # code unavailable\n")
         buf.write("        return out\n")

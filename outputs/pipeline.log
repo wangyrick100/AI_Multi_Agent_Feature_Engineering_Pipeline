@@ -1,0 +1,256 @@
+23:47:22  Orchestrator                   INFO     ======================================================================
+23:47:22  Orchestrator                   INFO       Feature Engineering System — Pipeline Starting
+23:47:22  Orchestrator                   INFO       Dataset: 200 rows × 13 cols
+23:47:22  Orchestrator                   INFO     ======================================================================
+23:47:22  Orchestrator                   INFO     ── Stage 1/7: SchemaUnderstanding ──
+23:47:22  SchemaUnderstandingAgent       INFO     ▶ SchemaUnderstandingAgent starting …
+23:47:22  SchemaUnderstandingAgent       INFO       Schema: 200 rows × 13 cols | entities=['transaction_id'] | temporals=['event_timestamp'] | target=is_fraud
+23:47:22  SchemaUnderstandingAgent       INFO     ✔ SchemaUnderstandingAgent completed in 0.06s
+23:47:22  Orchestrator                   INFO     ── Stage 2/7: FeatureIdeation ──
+23:47:22  FeatureIdeationAgent           INFO     ▶ FeatureIdeationAgent starting …
+23:47:22  FeatureIdeationAgent           INFO       Generating feature candidates …
+23:47:22  FeatureIdeationAgent           ERROR    FeatureIdeationAgent failed after 0.01s: _fdef() got an unexpected keyword argument 'requires_target'
+Traceback (most recent call last):
+  File "D:\00_Github_repo\code_agent_2_feature_engineering\agents\base_agent.py", line 44, in run
+    state = self._run(df, state)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "D:\00_Github_repo\code_agent_2_feature_engineering\agents\ideation_agent.py", line 125, in _run
+    all_features += self._gen_target_encoding_proxies(schema)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\00_Github_repo\code_agent_2_feature_engineering\agents\ideation_agent.py", line 1226, in _gen_target_encoding_proxies
+    features.append(_fdef(
+                    ^^^^^^
+TypeError: _fdef() got an unexpected keyword argument 'requires_target'
+23:47:50  Orchestrator                   INFO     ======================================================================
+23:47:50  Orchestrator                   INFO       Feature Engineering System — Pipeline Starting
+23:47:50  Orchestrator                   INFO       Dataset: 200 rows × 13 cols
+23:47:50  Orchestrator                   INFO     ======================================================================
+23:47:50  Orchestrator                   INFO     ── Stage 1/7: SchemaUnderstanding ──
+23:47:50  SchemaUnderstandingAgent       INFO     ▶ SchemaUnderstandingAgent starting …
+23:47:50  SchemaUnderstandingAgent       INFO       Schema: 200 rows × 13 cols | entities=['transaction_id'] | temporals=['event_timestamp'] | target=is_fraud
+23:47:50  SchemaUnderstandingAgent       INFO     ✔ SchemaUnderstandingAgent completed in 0.05s
+23:47:50  Orchestrator                   INFO     ── Stage 2/7: FeatureIdeation ──
+23:47:50  FeatureIdeationAgent           INFO     ▶ FeatureIdeationAgent starting …
+23:47:50  FeatureIdeationAgent           INFO       Generating feature candidates …
+23:47:50  FeatureIdeationAgent           INFO       Total candidate features generated: 244
+23:47:50  FeatureIdeationAgent           INFO         temporal                       152
+23:47:50  FeatureIdeationAgent           INFO         behavioral                     29
+23:47:50  FeatureIdeationAgent           INFO         statistical                    26
+23:47:50  FeatureIdeationAgent           INFO         sequence                       14
+23:47:50  FeatureIdeationAgent           INFO         rfm                            9
+23:47:50  FeatureIdeationAgent           INFO         leakage_safe_proxy             8
+23:47:50  FeatureIdeationAgent           INFO         ratio_interaction              6
+23:47:50  FeatureIdeationAgent           INFO     ✔ FeatureIdeationAgent completed in 0.01s
+23:47:50  Orchestrator                   INFO     ── Stage 3/7: FeatureConstruction ──
+23:47:50  FeatureConstructionAgent       INFO     ▶ FeatureConstructionAgent starting …
+23:47:50  FeatureConstructionAgent       INFO       Building 244 features …
+23:47:51  FeatureConstructionAgent       INFO         … 40 / 244 done
+23:47:56  FeatureConstructionAgent       INFO         … 60 / 244 done
+23:48:03  FeatureConstructionAgent       INFO         … 80 / 244 done
+23:48:09  FeatureConstructionAgent       INFO         … 100 / 244 done
+23:48:14  FeatureConstructionAgent       INFO         … 120 / 244 done
+23:48:19  FeatureConstructionAgent       INFO         … 140 / 244 done
+23:48:25  FeatureConstructionAgent       INFO         … 160 / 244 done
+23:48:28  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_user_id_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:48:28  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_category_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:48:28  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_merchant_id_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:48:28  FeatureConstructionAgent       INFO         … 200 / 244 done
+23:48:31  FeatureConstructionAgent       INFO         … 220 / 244 done
+23:48:31  FeatureConstructionAgent       INFO         … 240 / 244 done
+23:48:31  FeatureConstructionAgent       INFO       Successfully constructed 168 / 244 features.
+23:48:31  FeatureConstructionAgent       INFO     ✔ FeatureConstructionAgent completed in 40.94s
+23:48:31  Orchestrator                   INFO     ── Stage 4/7: FeatureEvaluation ──
+23:48:31  FeatureEvaluationAgent         INFO     ▶ FeatureEvaluationAgent starting …
+23:48:31  FeatureEvaluationAgent         INFO       Evaluating 168 features …
+23:48:31  FeatureEvaluationAgent         WARNING    xgboost/shap not installed — skipping SHAP computation.
+23:48:33  FeatureEvaluationAgent         INFO       Top 15 features by composite score:
+23:48:33  FeatureEvaluationAgent         INFO         #1   user_id__modal_category                       score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:48:33  FeatureEvaluationAgent         INFO         #2   category__modal_category                      score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:48:33  FeatureEvaluationAgent         INFO         #3   merchant_id__modal_category                   score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:48:33  FeatureEvaluationAgent         INFO         #4   user_id__frequency_ratio_vs_population        score=0.4976  iv=0.699     shap=n/a       psi=monitor
+23:48:33  FeatureEvaluationAgent         INFO         #5   amount__binned_decile                         score=0.4924  iv=0.716     shap=n/a       psi=monitor
+23:48:33  FeatureEvaluationAgent         INFO         #6   user_id__last_3_gram_hash                     score=0.4732  iv=0.861     shap=n/a       psi=monitor
+23:48:33  FeatureEvaluationAgent         INFO         #7   user_age_days__piecewise_low                  score=0.4398  iv=1.153     shap=n/a       psi=unstable
+23:48:33  FeatureEvaluationAgent         INFO         #8   user_age_days__box_cox                        score=0.4384  iv=0.716     shap=n/a       psi=unstable
+23:48:33  FeatureEvaluationAgent         INFO         #9   user_age_days__sqrt_transform                 score=0.4382  iv=0.716     shap=n/a       psi=unstable
+23:48:33  FeatureEvaluationAgent         INFO         #10  user_age_days__global_percentile_rank         score=0.4381  iv=0.716     shap=n/a       psi=unstable
+23:48:33  FeatureEvaluationAgent         INFO         #11  user_age_days__log_transform                  score=0.4377  iv=0.716     shap=n/a       psi=unstable
+23:48:33  FeatureEvaluationAgent         INFO         #12  amount__piecewise_high                        score=0.4371  iv=0.830     shap=n/a       psi=unstable
+23:48:33  FeatureEvaluationAgent         INFO         #13  user_age_days__binned_decile                  score=0.4343  iv=0.716     shap=n/a       psi=unstable
+23:48:33  FeatureEvaluationAgent         INFO         #14  ratio__amount_div_user_age_days               score=0.4276  iv=0.716     shap=n/a       psi=unstable
+23:48:33  FeatureEvaluationAgent         INFO         #15  category__frequency_ratio_vs_population       score=0.4216  iv=0.328     shap=n/a       psi=stable
+23:48:33  FeatureEvaluationAgent         INFO     ✔ FeatureEvaluationAgent completed in 1.74s
+23:48:33  Orchestrator                   INFO     ── Stage 5/7: FeatureSelection ──
+23:48:33  FeatureSelectionAgent          INFO     ▶ FeatureSelectionAgent starting …
+23:48:33  FeatureSelectionAgent          INFO       Selecting features using method='pareto' …
+23:48:33  FeatureSelectionAgent          INFO       Selected 3 / 168 features.
+23:48:33  FeatureSelectionAgent          INFO         ✔  user_id__modal_category                       score=1.0000
+23:48:33  FeatureSelectionAgent          INFO         ✔  category__modal_category                      score=1.0000
+23:48:33  FeatureSelectionAgent          INFO         ✔  merchant_id__modal_category                   score=1.0000
+23:48:33  FeatureSelectionAgent          INFO     ✔ FeatureSelectionAgent completed in 0.00s
+23:48:33  Orchestrator                   INFO     ── Stage 6/7: FeatureGovernance ──
+23:48:33  FeatureGovernanceAgent         INFO     ▶ FeatureGovernanceAgent starting …
+23:48:33  FeatureGovernanceAgent         INFO       Generating governance records for 3 features …
+23:48:33  FeatureGovernanceAgent         INFO       Governance records written to D:\00_Github_repo\code_agent_2_feature_engineering\outputs\governance.json
+23:48:33  FeatureGovernanceAgent         INFO     ✔ FeatureGovernanceAgent completed in 0.02s
+23:48:33  Orchestrator                   INFO     ======================================================================
+23:48:33  Orchestrator                   INFO       Pipeline complete in 42.7s
+23:48:33  Orchestrator                   INFO       Features: 244 candidates → 168 constructed → 3 selected
+23:48:33  Orchestrator                   INFO     ======================================================================
+23:48:58  Orchestrator                   INFO     ======================================================================
+23:48:58  Orchestrator                   INFO       Feature Engineering System — Pipeline Starting
+23:48:58  Orchestrator                   INFO       Dataset: 120 rows × 13 cols
+23:48:58  Orchestrator                   INFO     ======================================================================
+23:48:58  Orchestrator                   INFO     ── Stage 1/7: SchemaUnderstanding ──
+23:48:58  SchemaUnderstandingAgent       INFO     ▶ SchemaUnderstandingAgent starting …
+23:48:58  SchemaUnderstandingAgent       INFO       Schema: 120 rows × 13 cols | entities=['transaction_id'] | temporals=['event_timestamp'] | target=is_fraud
+23:48:58  SchemaUnderstandingAgent       INFO     ✔ SchemaUnderstandingAgent completed in 0.04s
+23:48:58  Orchestrator                   INFO     ── Stage 2/7: FeatureIdeation ──
+23:48:58  FeatureIdeationAgent           INFO     ▶ FeatureIdeationAgent starting …
+23:48:58  FeatureIdeationAgent           INFO       Generating feature candidates …
+23:48:58  FeatureIdeationAgent           INFO       Total candidate features generated: 244
+23:48:58  FeatureIdeationAgent           INFO         temporal                       152
+23:48:58  FeatureIdeationAgent           INFO         behavioral                     29
+23:48:58  FeatureIdeationAgent           INFO         statistical                    26
+23:48:58  FeatureIdeationAgent           INFO         sequence                       14
+23:48:58  FeatureIdeationAgent           INFO         rfm                            9
+23:48:58  FeatureIdeationAgent           INFO         leakage_safe_proxy             8
+23:48:58  FeatureIdeationAgent           INFO         ratio_interaction              6
+23:48:58  FeatureIdeationAgent           INFO     ✔ FeatureIdeationAgent completed in 0.01s
+23:48:58  Orchestrator                   INFO     ── Stage 3/7: FeatureConstruction ──
+23:48:58  FeatureConstructionAgent       INFO     ▶ FeatureConstructionAgent starting …
+23:48:58  FeatureConstructionAgent       INFO       Building 244 features …
+23:48:58  FeatureConstructionAgent       INFO         … 40 / 244 done
+23:49:02  FeatureConstructionAgent       INFO         … 60 / 244 done
+23:49:05  FeatureConstructionAgent       INFO         … 80 / 244 done
+23:49:09  FeatureConstructionAgent       INFO         … 100 / 244 done
+23:49:12  FeatureConstructionAgent       INFO         … 120 / 244 done
+23:49:15  FeatureConstructionAgent       INFO         … 140 / 244 done
+23:49:18  FeatureConstructionAgent       INFO         … 160 / 244 done
+23:49:21  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_user_id_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:49:21  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_category_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:49:21  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_merchant_id_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:49:21  FeatureConstructionAgent       INFO         … 200 / 244 done
+23:49:22  FeatureConstructionAgent       INFO         … 220 / 244 done
+23:49:23  FeatureConstructionAgent       INFO         … 240 / 244 done
+23:49:23  FeatureConstructionAgent       INFO       Successfully constructed 168 / 244 features.
+23:49:23  FeatureConstructionAgent       INFO     ✔ FeatureConstructionAgent completed in 25.03s
+23:49:23  Orchestrator                   INFO     ── Stage 4/7: FeatureEvaluation ──
+23:49:23  FeatureEvaluationAgent         INFO     ▶ FeatureEvaluationAgent starting …
+23:49:23  FeatureEvaluationAgent         INFO       Evaluating 168 features …
+23:49:23  FeatureEvaluationAgent         WARNING    xgboost/shap not installed — skipping SHAP computation.
+23:49:23  FeatureEvaluationAgent         WARNING    MI computation failed: 'NoneType' object has no attribute 'split'
+23:49:24  FeatureEvaluationAgent         INFO       Top 15 features by composite score:
+23:49:24  FeatureEvaluationAgent         INFO         #1   user_id__modal_category                       score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:49:24  FeatureEvaluationAgent         INFO         #2   category__modal_category                      score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:49:24  FeatureEvaluationAgent         INFO         #3   merchant_id__modal_category                   score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:49:24  FeatureEvaluationAgent         INFO         #4   user_id__last_3_gram_hash                     score=0.7621  iv=2.818     shap=n/a       psi=stable
+23:49:24  FeatureEvaluationAgent         INFO         #5   user_id__frequency_ratio_vs_population        score=0.7581  iv=1.464     shap=n/a       psi=stable
+23:49:24  FeatureEvaluationAgent         INFO         #6   user_id__last_2_gram_hash                     score=0.7509  iv=1.953     shap=n/a       psi=stable
+23:49:24  FeatureEvaluationAgent         INFO         #7   category__frequency_ratio_vs_population       score=0.6437  iv=1.252     shap=n/a       psi=monitor
+23:49:24  FeatureEvaluationAgent         INFO         #8   user_age_days__piecewise_low                  score=0.5787  iv=1.032     shap=n/a       psi=unstable
+23:49:24  FeatureEvaluationAgent         INFO         #9   user_age_days__global_percentile_rank         score=0.5599  iv=0.909     shap=n/a       psi=unstable
+23:49:24  FeatureEvaluationAgent         INFO         #10  user_age_days__log_transform                  score=0.5599  iv=0.909     shap=n/a       psi=unstable
+23:49:24  FeatureEvaluationAgent         INFO         #11  user_age_days__sqrt_transform                 score=0.5599  iv=0.909     shap=n/a       psi=unstable
+23:49:24  FeatureEvaluationAgent         INFO         #12  user_age_days__box_cox                        score=0.5599  iv=0.909     shap=n/a       psi=unstable
+23:49:24  FeatureEvaluationAgent         INFO         #13  user_age_days__binned_decile                  score=0.5585  iv=0.909     shap=n/a       psi=unstable
+23:49:24  FeatureEvaluationAgent         INFO         #14  transaction_id__time_decay_score_30d          score=0.5372  iv=0.909     shap=n/a       psi=unstable
+23:49:24  FeatureEvaluationAgent         INFO         #15  product__amount_x_user_age_days               score=0.5358  iv=0.909     shap=n/a       psi=unstable
+23:49:24  FeatureEvaluationAgent         INFO     ✔ FeatureEvaluationAgent completed in 1.66s
+23:49:24  Orchestrator                   INFO     ── Stage 5/7: FeatureSelection ──
+23:49:24  FeatureSelectionAgent          INFO     ▶ FeatureSelectionAgent starting …
+23:49:24  FeatureSelectionAgent          INFO       Selecting features using method='pareto' …
+23:49:24  FeatureSelectionAgent          INFO       Selected 3 / 168 features.
+23:49:24  FeatureSelectionAgent          INFO         ✔  user_id__modal_category                       score=1.0000
+23:49:24  FeatureSelectionAgent          INFO         ✔  category__modal_category                      score=1.0000
+23:49:24  FeatureSelectionAgent          INFO         ✔  merchant_id__modal_category                   score=1.0000
+23:49:24  FeatureSelectionAgent          INFO     ✔ FeatureSelectionAgent completed in 0.00s
+23:49:24  Orchestrator                   INFO     ── Stage 6/7: FeatureGovernance ──
+23:49:24  FeatureGovernanceAgent         INFO     ▶ FeatureGovernanceAgent starting …
+23:49:24  FeatureGovernanceAgent         INFO       Generating governance records for 3 features …
+23:49:24  FeatureGovernanceAgent         INFO       Governance records written to D:\00_Github_repo\code_agent_2_feature_engineering\outputs\governance.json
+23:49:24  FeatureGovernanceAgent         INFO     ✔ FeatureGovernanceAgent completed in 0.00s
+23:49:24  Orchestrator                   INFO     ======================================================================
+23:49:24  Orchestrator                   INFO       Pipeline complete in 26.7s
+23:49:24  Orchestrator                   INFO       Features: 244 candidates → 168 constructed → 3 selected
+23:49:24  Orchestrator                   INFO     ======================================================================
+23:49:24  pipelines.python_pipeline      INFO     PythonPipeline: built 3 feature steps.
+23:52:08  Orchestrator                   INFO     ======================================================================
+23:52:08  Orchestrator                   INFO       Feature Engineering System — Pipeline Starting
+23:52:08  Orchestrator                   INFO       Dataset: 120 rows × 13 cols
+23:52:08  Orchestrator                   INFO     ======================================================================
+23:52:08  Orchestrator                   INFO     ── Stage 1/7: SchemaUnderstanding ──
+23:52:08  SchemaUnderstandingAgent       INFO     ▶ SchemaUnderstandingAgent starting …
+23:52:08  SchemaUnderstandingAgent       INFO       Schema: 120 rows × 13 cols | entities=['transaction_id'] | temporals=['event_timestamp'] | target=is_fraud
+23:52:08  SchemaUnderstandingAgent       INFO     ✔ SchemaUnderstandingAgent completed in 0.04s
+23:52:08  Orchestrator                   INFO     ── Stage 2/7: FeatureIdeation ──
+23:52:08  FeatureIdeationAgent           INFO     ▶ FeatureIdeationAgent starting …
+23:52:08  FeatureIdeationAgent           INFO       Generating feature candidates …
+23:52:08  FeatureIdeationAgent           INFO       Total candidate features generated: 244
+23:52:08  FeatureIdeationAgent           INFO         temporal                       152
+23:52:08  FeatureIdeationAgent           INFO         behavioral                     29
+23:52:08  FeatureIdeationAgent           INFO         statistical                    26
+23:52:08  FeatureIdeationAgent           INFO         sequence                       14
+23:52:08  FeatureIdeationAgent           INFO         rfm                            9
+23:52:08  FeatureIdeationAgent           INFO         leakage_safe_proxy             8
+23:52:08  FeatureIdeationAgent           INFO         ratio_interaction              6
+23:52:08  FeatureIdeationAgent           INFO     ✔ FeatureIdeationAgent completed in 0.01s
+23:52:08  Orchestrator                   INFO     ── Stage 3/7: FeatureConstruction ──
+23:52:08  FeatureConstructionAgent       INFO     ▶ FeatureConstructionAgent starting …
+23:52:08  FeatureConstructionAgent       INFO       Building 244 features …
+23:52:09  FeatureConstructionAgent       INFO         … 40 / 244 done
+23:52:13  FeatureConstructionAgent       INFO         … 60 / 244 done
+23:52:16  FeatureConstructionAgent       INFO         … 80 / 244 done
+23:52:20  FeatureConstructionAgent       INFO         … 100 / 244 done
+23:52:23  FeatureConstructionAgent       INFO         … 120 / 244 done
+23:52:26  FeatureConstructionAgent       INFO         … 140 / 244 done
+23:52:30  FeatureConstructionAgent       INFO         … 160 / 244 done
+23:52:32  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_user_id_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:52:32  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_category_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:52:32  FeatureConstructionAgent       WARNING      Skipped 'transaction_id__days_since_last_merchant_id_change': Addition/subtraction of integers and integer-arrays with Timestamp is no longer supported.  Instead of adding/subtracting `n`, use `n * obj.freq`
+23:52:32  FeatureConstructionAgent       INFO         … 200 / 244 done
+23:52:33  FeatureConstructionAgent       INFO         … 220 / 244 done
+23:52:34  FeatureConstructionAgent       INFO         … 240 / 244 done
+23:52:34  FeatureConstructionAgent       INFO       Successfully constructed 168 / 244 features.
+23:52:34  FeatureConstructionAgent       INFO     ✔ FeatureConstructionAgent completed in 25.04s
+23:52:34  Orchestrator                   INFO     ── Stage 4/7: FeatureEvaluation ──
+23:52:34  FeatureEvaluationAgent         INFO     ▶ FeatureEvaluationAgent starting …
+23:52:34  FeatureEvaluationAgent         INFO       Evaluating 168 features …
+23:52:34  FeatureEvaluationAgent         WARNING    xgboost/shap not installed — skipping SHAP computation.
+23:52:34  FeatureEvaluationAgent         WARNING    MI computation failed: 'NoneType' object has no attribute 'split'
+23:52:35  FeatureEvaluationAgent         INFO       Top 15 features by composite score:
+23:52:35  FeatureEvaluationAgent         INFO         #1   user_id__modal_category                       score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:52:35  FeatureEvaluationAgent         INFO         #2   category__modal_category                      score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:52:35  FeatureEvaluationAgent         INFO         #3   merchant_id__modal_category                   score=1.0000  iv=n/a       shap=n/a       psi=unknown
+23:52:35  FeatureEvaluationAgent         INFO         #4   category__frequency_ratio_vs_population       score=0.6333  iv=0.615     shap=n/a       psi=monitor
+23:52:35  FeatureEvaluationAgent         INFO         #5   amount__piecewise_low                         score=0.5324  iv=0.328     shap=n/a       psi=stable
+23:52:35  FeatureEvaluationAgent         INFO         #6   user_id__last_2_gram_hash                     score=0.5286  iv=1.043     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #7   user_id__last_3_gram_hash                     score=0.5281  iv=1.278     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #8   user_id__frequency_ratio_vs_population        score=0.5168  iv=0.789     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #9   user_age_days__binned_decile                  score=0.5139  iv=0.909     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #10  transaction_id__time_decay_score_30d          score=0.5127  iv=0.909     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #11  user_age_days__global_percentile_rank         score=0.5123  iv=0.909     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #12  user_age_days__log_transform                  score=0.5123  iv=0.909     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #13  user_age_days__sqrt_transform                 score=0.5123  iv=0.909     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #14  user_age_days__box_cox                        score=0.5123  iv=0.909     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO         #15  product__amount_x_user_age_days               score=0.5109  iv=0.909     shap=n/a       psi=unstable
+23:52:35  FeatureEvaluationAgent         INFO     ✔ FeatureEvaluationAgent completed in 1.59s
+23:52:35  Orchestrator                   INFO     ── Stage 5/7: FeatureSelection ──
+23:52:35  FeatureSelectionAgent          INFO     ▶ FeatureSelectionAgent starting …
+23:52:35  FeatureSelectionAgent          INFO       Selecting features using method='pareto' …
+23:52:35  FeatureSelectionAgent          INFO       Selected 3 / 168 features.
+23:52:35  FeatureSelectionAgent          INFO         ✔  user_id__modal_category                       score=1.0000
+23:52:35  FeatureSelectionAgent          INFO         ✔  category__modal_category                      score=1.0000
+23:52:35  FeatureSelectionAgent          INFO         ✔  merchant_id__modal_category                   score=1.0000
+23:52:35  FeatureSelectionAgent          INFO     ✔ FeatureSelectionAgent completed in 0.00s
+23:52:35  Orchestrator                   INFO     ── Stage 6/7: FeatureGovernance ──
+23:52:35  FeatureGovernanceAgent         INFO     ▶ FeatureGovernanceAgent starting …
+23:52:35  FeatureGovernanceAgent         INFO       Generating governance records for 3 features …
+23:52:35  FeatureGovernanceAgent         INFO       Governance records written to D:\00_Github_repo\code_agent_2_feature_engineering\outputs\governance.json
+23:52:35  FeatureGovernanceAgent         INFO     ✔ FeatureGovernanceAgent completed in 0.00s
+23:52:35  Orchestrator                   INFO     ======================================================================
+23:52:35  Orchestrator                   INFO       Pipeline complete in 26.7s
+23:52:35  Orchestrator                   INFO       Features: 244 candidates → 168 constructed → 3 selected
+23:52:35  Orchestrator                   INFO     ======================================================================
+23:52:35  pipelines.python_pipeline      INFO     PythonPipeline: built 3 feature steps.
+23:52:35  pipelines.python_pipeline      INFO     PythonPipeline.transform: produced 3 new columns.

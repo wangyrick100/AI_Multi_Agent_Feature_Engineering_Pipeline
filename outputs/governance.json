@@ -1,0 +1,199 @@
+{
+  "run_id": "85e2ce13-ace",
+  "generated_at": "2026-04-06T03:52:35.630957",
+  "n_features": 3,
+  "features": [
+    {
+      "feature_id": "f4404b22",
+      "feature_name": "user_id__modal_category",
+      "version": "1.0.0",
+      "owner": "feature-engineering-system",
+      "created_at": "2026-04-06T03:52:35.629959",
+      "updated_at": "2026-04-06T03:52:35.629959",
+      "description": "Most frequently occurring user_id value per transaction_id over history.",
+      "business_definitions": {
+        "business_intuition": "Primary domain/category is a stable identity signal.",
+        "mathematical_definition": "mode(user_id) grouped by transaction_id",
+        "category": "sequence",
+        "expected_predictive_value": "medium",
+        "leakage_risk": "none"
+      },
+      "lineage_nodes": [
+        {
+          "node_id": "src__transaction_id",
+          "node_type": "source_column",
+          "label": "transaction_id",
+          "metadata": {
+            "dtype": "object"
+          }
+        },
+        {
+          "node_id": "src__user_id",
+          "node_type": "source_column",
+          "label": "user_id",
+          "metadata": {
+            "dtype": "object"
+          }
+        },
+        {
+          "node_id": "f4404b22",
+          "node_type": "feature",
+          "label": "user_id__modal_category",
+          "metadata": {
+            "category": "sequence",
+            "predictive_value": "medium",
+            "leakage_risk": "none"
+          }
+        }
+      ],
+      "lineage_edges": [
+        {
+          "from_id": "src__transaction_id",
+          "to_id": "f4404b22",
+          "edge_type": "derived_from"
+        },
+        {
+          "from_id": "src__user_id",
+          "to_id": "f4404b22",
+          "edge_type": "derived_from"
+        }
+      ],
+      "bias_reports": [],
+      "tags": [
+        "mode",
+        "preference"
+      ],
+      "is_pii_adjacent": false,
+      "reproducibility_hash": "00f13a1bd3c2172d",
+      "sign_off": null
+    },
+    {
+      "feature_id": "278593a1",
+      "feature_name": "category__modal_category",
+      "version": "1.0.0",
+      "owner": "feature-engineering-system",
+      "created_at": "2026-04-06T03:52:35.629959",
+      "updated_at": "2026-04-06T03:52:35.629959",
+      "description": "Most frequently occurring category value per transaction_id over history.",
+      "business_definitions": {
+        "business_intuition": "Primary domain/category is a stable identity signal.",
+        "mathematical_definition": "mode(category) grouped by transaction_id",
+        "category": "sequence",
+        "expected_predictive_value": "medium",
+        "leakage_risk": "none"
+      },
+      "lineage_nodes": [
+        {
+          "node_id": "src__transaction_id",
+          "node_type": "source_column",
+          "label": "transaction_id",
+          "metadata": {
+            "dtype": "object"
+          }
+        },
+        {
+          "node_id": "src__category",
+          "node_type": "source_column",
+          "label": "category",
+          "metadata": {
+            "dtype": "object"
+          }
+        },
+        {
+          "node_id": "278593a1",
+          "node_type": "feature",
+          "label": "category__modal_category",
+          "metadata": {
+            "category": "sequence",
+            "predictive_value": "medium",
+            "leakage_risk": "none"
+          }
+        }
+      ],
+      "lineage_edges": [
+        {
+          "from_id": "src__transaction_id",
+          "to_id": "278593a1",
+          "edge_type": "derived_from"
+        },
+        {
+          "from_id": "src__category",
+          "to_id": "278593a1",
+          "edge_type": "derived_from"
+        }
+      ],
+      "bias_reports": [],
+      "tags": [
+        "mode",
+        "preference"
+      ],
+      "is_pii_adjacent": false,
+      "reproducibility_hash": "3288723e9be7da4b",
+      "sign_off": null
+    },
+    {
+      "feature_id": "192dbb56",
+      "feature_name": "merchant_id__modal_category",
+      "version": "1.0.0",
+      "owner": "feature-engineering-system",
+      "created_at": "2026-04-06T03:52:35.629959",
+      "updated_at": "2026-04-06T03:52:35.629959",
+      "description": "Most frequently occurring merchant_id value per transaction_id over history.",
+      "business_definitions": {
+        "business_intuition": "Primary domain/category is a stable identity signal.",
+        "mathematical_definition": "mode(merchant_id) grouped by transaction_id",
+        "category": "sequence",
+        "expected_predictive_value": "medium",
+        "leakage_risk": "none"
+      },
+      "lineage_nodes": [
+        {
+          "node_id": "src__transaction_id",
+          "node_type": "source_column",
+          "label": "transaction_id",
+          "metadata": {
+            "dtype": "object"
+          }
+        },
+        {
+          "node_id": "src__merchant_id",
+          "node_type": "source_column",
+          "label": "merchant_id",
+          "metadata": {
+            "dtype": "object"
+          }
+        },
+        {
+          "node_id": "192dbb56",
+          "node_type": "feature",
+          "label": "merchant_id__modal_category",
+          "metadata": {
+            "category": "sequence",
+            "predictive_value": "medium",
+            "leakage_risk": "none"
+          }
+        }
+      ],
+      "lineage_edges": [
+        {
+          "from_id": "src__transaction_id",
+          "to_id": "192dbb56",
+          "edge_type": "derived_from"
+        },
+        {
+          "from_id": "src__merchant_id",
+          "to_id": "192dbb56",
+          "edge_type": "derived_from"
+        }
+      ],
+      "bias_reports": [],
+      "tags": [
+        "mode",
+        "preference"
+      ],
+      "is_pii_adjacent": false,
+      "reproducibility_hash": "b8c6bb4d767a5337",
+      "sign_off": null
+    }
+  ]
+}
