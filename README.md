@@ -1,5 +1,7 @@
 ﻿# Multi-Agent Feature Engineering System
 
+Core Invention Disclosure and Technical Specification for Patent Preparation
+
 ## Proprietary and Patent Notice
 
 This repository contains proprietary technical subject matter owned exclusively by Yang (Rick) Wang, Ph.D., the repository author/inventor, and is not released as open source.
@@ -12,7 +14,58 @@ No license, assignment, waiver, or other transfer of rights is granted by posses
 
 If this repository is ever circulated outside the controlled environment of Yang (Rick) Wang, Ph.D., the patent notice, owner name, legal entity name, and any application-reference wording should be aligned with final counsel-approved language.
 
-## Executive Summary
+## Patent Preparation Use of This README
+
+This README is intentionally written to function as the core technical disclosure record supporting patent preparation for Yang (Rick) Wang, Ph.D. It is structured to help patent counsel, patent agents, and prosecution teams derive a formal filing package by capturing the invention title, technical field, background, technical problems solved, inventive concepts, architecture, representative embodiments, implementation details, alternatives, operational advantages, and reduction-to-practice evidence.
+
+This document should therefore be treated as the primary invention narrative and technical reference for patent drafting. It is not, by itself, the complete filing packet for a nonprovisional application. A formal filing package should still be assembled in counsel-controlled form with claims, abstract, drawings when necessary, application data, inventor oath or declaration, and filing-form compliance.
+
+## Invention Record Metadata
+
+| Field | Value |
+| --- | --- |
+| Invention title | Multi-Agent Feature Engineering System for Automated, Governed, and Exportable Feature Synthesis |
+| Inventor / owner | Yang (Rick) Wang, Ph.D. |
+| Document role | Core invention disclosure and technical specification supporting patent preparation |
+| Technical domains | Machine learning, automated feature engineering, data transformation systems, model-governance infrastructure |
+| Implementation status | Reduced to practice through working software implementation contained in this repository |
+| Filing posture | One or more patent applications have already been filed; specific application identifiers should be inserted only in counsel-controlled versions |
+| Intended use of this README | Source document for drafting provisional, nonprovisional, continuation, foreign counterpart, diligence, or licensing-support materials |
+
+## Technical Field
+
+This invention relates generally to computer-implemented machine learning infrastructure and, more specifically, to systems and methods for automated feature engineering over tabular datasets. The invention further relates to schema-aware feature synthesis, executable transformation generation, model-informed feature evaluation, governance-aware feature selection, and iterative optimization workflows for deployable analytics pipelines.
+
+## Background and Technical Problems
+
+Conventional feature engineering is typically fragmented across notebooks, data-preparation scripts, feature-store tooling, analyst intuition, and ad hoc experimentation. That conventional workflow creates several technical weaknesses:
+
+- candidate features are generated manually and at low scale
+- semantic meaning is often lost between idea generation and implementation
+- executable code for features is inconsistently translated across Python and SQL environments
+- leakage and temporal-validity risks are easy to introduce and difficult to audit
+- evaluation often depends on one metric rather than a multi-signal quality framework
+- governance, lineage, reproducibility, and bias checks are treated as afterthoughts
+- iteration is slow because rejected features are rarely transformed into structured learning for the next design round
+
+The present system addresses these shortcomings by coordinating multiple specialized agents around a common typed state model and by converting feature ideas into traceable, evaluable, governable, and exportable artifacts.
+
+## Distinguishing Inventive Concepts
+
+The inventive contribution is not merely "automating feature engineering" in the abstract. The stronger technical contribution described by this repository is the coordinated combination of:
+
+- a multi-agent orchestration architecture in which specialized agents are responsible for schema analysis, ideation, construction, evaluation, selection, governance, and feedback optimization
+- a shared typed pipeline state that carries semantic and evidentiary information across the full lifecycle of feature generation
+- schema-aware feature ideation that selects candidate-feature families using inferred semantic roles, entity structure, temporal context, and target availability
+- automatic conversion of abstract feature intent into executable pandas logic and exportable SQL expressions
+- multi-metric feature evaluation using statistical, predictive, redundancy, and explainability-oriented signals
+- governance generation that records lineage, reproducibility identifiers, risk tags, and bias-adjacent indicators for each selected feature
+- a closed-loop feedback mechanism that turns evaluation and governance results into subsequent rounds of feature refinement
+- deployment-facing export surfaces that transform invention output into reusable Python modules, SQL scripts, JSON reports, and feature-store assets
+
+These concepts can support method claims, system claims, and computer-readable-medium claims when translated by counsel into formal claim language.
+
+## Summary of the Invention
 
 This project implements a production-oriented multi-agent feature engineering platform for tabular machine learning. The system analyzes a raw dataset, infers schema semantics, proposes a large catalog of candidate features, constructs executable feature logic, evaluates each candidate with multiple statistical and model-based signals, selects a compact high-value subset, records governance metadata, and optionally enters a feedback loop for iterative improvement.
 
@@ -28,7 +81,7 @@ The codebase is organized around a central `FeatureEngineeringOrchestrator` that
 
 The implementation targets real feature-engineering concerns rather than toy feature transforms. It includes temporal leakage protection, time-aware rolling logic, target-encoding safeguards, governance records, reproducibility hashes, Streamlit-based exploration, exportable Python and SQL artifacts, and a synthetic data generator for demo and validation scenarios.
 
-## System Objectives
+## Problems Addressed by the Invention
 
 The system is designed to solve five hard problems that commonly appear in enterprise feature engineering programs:
 
@@ -70,6 +123,175 @@ Primary state carrier:
 - `PipelineState` in `core/data_models.py` is the single typed contract shared across all agents.
 - Each stage enriches the same state object rather than inventing an ad hoc side-channel.
 - Large constructed matrices are attached out-of-band via `state.__dict__["constructed_df"]` to avoid bloating serialized state models.
+
+## Candidate Figure Set for Patent Drafting
+
+The following figure set can be derived from this README and the implementation for a counsel-prepared patent application:
+
+- Figure 1: end-to-end block diagram of the multi-agent feature engineering system
+- Figure 2: orchestrator control flow showing stage ordering and shared pipeline state
+- Figure 3: schema understanding subsystem and semantic-role inference pipeline
+- Figure 4: feature ideation engine mapping schema semantics to candidate template families
+- Figure 5: feature construction subsystem generating executable Python and SQL artifacts
+- Figure 6: evaluation pipeline combining statistical, predictive, redundancy, and explainability signals
+- Figure 7: selection and governance pipeline producing selected features, lineage records, and reproducibility metadata
+- Figure 8: feedback optimization loop for iterative candidate refinement
+- Figure 9: deployment/export architecture for CLI, UI, Python module, SQL script, JSON outputs, and feature-store assets
+
+For formal filing, these figures should be converted into standalone drawing sheets rather than embedded in the nonprovisional specification text.
+
+## Brief Description of Candidate Drawings
+
+- Figure 1 illustrates an end-to-end processing pipeline from raw tabular data to exported feature artifacts.
+- Figure 2 illustrates an orchestrator-driven execution flow in which specialized agents operate over a shared pipeline state.
+- Figure 3 illustrates schema understanding and semantic-role inference performed on input columns.
+- Figure 4 illustrates generation of candidate-feature definitions from schema semantics and template families.
+- Figure 5 illustrates construction of executable feature transformations and dual export into Python and SQL representations.
+- Figure 6 illustrates evaluation of candidate features using multiple statistical and model-based quality signals.
+- Figure 7 illustrates selection, governance, lineage recording, and reproducibility-metadata generation for selected features.
+- Figure 8 illustrates a feedback optimization loop in which prior evaluation outcomes guide subsequent ideation or refinement.
+- Figure 9 illustrates deployment surfaces including command-line execution, interactive UI review, exported code artifacts, and feature-store materialization.
+
+## Embedded Reference Figures
+
+The figures referenced above are embedded below as Mermaid diagrams for technical review and invention documentation. For formal patent filing, they should be redrawn as standalone patent-compliant figure sheets.
+
+### Figure 1. End-to-End Multi-Agent Feature Engineering System
+
+```mermaid
+flowchart LR
+    A[Raw Tabular Dataset] --> B[Schema Understanding]
+    B --> C[Feature Ideation]
+    C --> D[Feature Construction]
+    D --> E[Feature Evaluation]
+    E --> F[Feature Selection]
+    F --> G[Governance Recording]
+    G --> H[Feedback Optimization]
+    H --> I[Exported Artifacts]
+```
+
+### Figure 2. Orchestrator Control Flow and Shared Pipeline State
+
+```mermaid
+flowchart TD
+    O[FeatureEngineeringOrchestrator] --> S1[Schema Agent]
+    O --> S2[Ideation Agent]
+    O --> S3[Construction Agent]
+    O --> S4[Evaluation Agent]
+    O --> S5[Selection Agent]
+    O --> S6[Governance Agent]
+    O --> S7[Feedback Agent]
+
+    P[(PipelineState)]
+
+    S1 <--> P
+    S2 <--> P
+    S3 <--> P
+    S4 <--> P
+    S5 <--> P
+    S6 <--> P
+    S7 <--> P
+```
+
+### Figure 3. Schema Understanding and Semantic Role Inference
+
+```mermaid
+flowchart TD
+    A[Input Columns] --> B[Column Profiling]
+    B --> C[Type Inference]
+    B --> D[Missingness and Uniqueness Analysis]
+    B --> E[Temporal Pattern Detection]
+    C --> F[Semantic Role Inference]
+    D --> F
+    E --> F
+    F --> G[SchemaAnalysis]
+    G --> H[Entity Columns]
+    G --> I[Timestamp Columns]
+    G --> J[Candidate Target Columns]
+```
+
+### Figure 4. Schema-Aware Feature Ideation
+
+```mermaid
+flowchart LR
+    A[SchemaAnalysis] --> B[Template Family Selection]
+    B --> C1[Aggregations]
+    B --> C2[Temporal Features]
+    B --> C3[Interaction Features]
+    B --> C4[Target Encoding]
+    B --> C5[Statistical Summaries]
+    C1 --> D[FeatureDefinition Catalog]
+    C2 --> D
+    C3 --> D
+    C4 --> D
+    C5 --> D
+```
+
+### Figure 5. Feature Construction and Dual Export
+
+```mermaid
+flowchart TD
+    A[FeatureDefinition Catalog] --> B[Construction Engine]
+    B --> C[Constructed DataFrame]
+    B --> D[Python Pipeline Export]
+    B --> E[SQL Pipeline Export]
+    C --> F[Feature Matrix]
+    D --> G[Reusable Python Module]
+    E --> H[Warehouse SQL Script]
+```
+
+### Figure 6. Multi-Metric Feature Evaluation
+
+```mermaid
+flowchart TD
+    A[Constructed Features] --> B[Statistical Metrics]
+    A --> C[Predictive Metrics]
+    A --> D[Redundancy Analysis]
+    A --> E[Explainability Signals]
+    B --> F[FeatureEvaluation Records]
+    C --> F
+    D --> F
+    E --> F
+    F --> G[Ranked Feature Scores]
+```
+
+### Figure 7. Selection, Governance, and Reproducibility
+
+```mermaid
+flowchart LR
+    A[FeatureEvaluation Records] --> B[Selection Engine]
+    B --> C[Selected Feature Set]
+    C --> D[Governance Engine]
+    D --> E[Lineage Metadata]
+    D --> F[Risk and Bias Tags]
+    D --> G[Reproducibility Hashes]
+    D --> H[Governance Reports]
+```
+
+### Figure 8. Closed-Loop Feedback Optimization
+
+```mermaid
+flowchart TD
+    A[Selected and Rejected Features] --> B[Feedback Optimization]
+    B --> C[Gap Detection]
+    B --> D[Weak Pattern Detection]
+    B --> E[Refinement Recommendations]
+    E --> F[New Ideation Cycle]
+    F --> G[Reconstruction and Re-evaluation]
+    G --> H[Improved Candidate Set]
+```
+
+### Figure 9. Deployment and Review Surfaces
+
+```mermaid
+flowchart LR
+    A[Core Pipeline] --> B[CLI Execution]
+    A --> C[Streamlit UI]
+    A --> D[Python Export]
+    A --> E[SQL Export]
+    A --> F[JSON Reports]
+    A --> G[Feature Store Assets]
+```
 
 ## What the System Produces
 
@@ -509,19 +731,64 @@ A disciplined extension rule should be maintained:
 
 - any new ideation template should have a corresponding construction path, evaluation visibility, and governance story.
 
-## Intellectual Property Positioning of the System
+## Representative Embodiments and Variants
 
-From an invention-documentation perspective, the strongest protectable aspects expressed by this repository are likely to include combinations of:
+This repository supports multiple embodiments that can be described in a patent application:
 
-- multi-agent orchestration for feature engineering
-- schema-aware feature ideation methodology
-- conversion of feature intent into executable Python and SQL artifacts
-- multi-metric evaluation and ranking framework
-- integrated governance and reproducibility workflow
-- closed-loop feedback optimization for iterative feature improvement
+- a computer-implemented batch pipeline embodiment operating on a tabular dataframe input
+- a modular orchestration embodiment in which specialized agents execute sequentially over a typed pipeline state
+- an export embodiment in which selected features are converted into deployment-ready Python and SQL artifacts
+- a governance embodiment in which feature lineage, risk, and reproducibility metadata are recorded with the engineering output
+- a feedback embodiment in which downstream evaluation results trigger a new ideation or selection cycle
 
-That does not itself determine claim scope, but it is the level at which this README now documents the system: not as a simple utility, but as a coordinated technical platform.
+The invention is not limited to the exact class boundaries or software framework shown in this repository. Reasonable variants include:
+
+- one or more agents merged into fewer runtime services
+- rule-based, heuristic, statistical, learned, or hybrid semantic-inference engines
+- local, distributed, cloud, notebook, API, workflow-orchestrator, or streaming deployment modes
+- pandas, Spark, SQL-engine, feature-store, or warehouse-native construction backends
+- ranking and selection based on alternative metric ensembles, guardrails, or business constraints
+
+## Patent Drafting Anchors
+
+The technical disclosure in this repository is suitable to support drafting of several formal claim categories, subject to counsel review:
+
+- method claims directed to receiving dataset input, inferring schema semantics, generating candidate features, constructing executable feature transformations, evaluating features, selecting features, generating governance records, and exporting deployable artifacts
+- system claims directed to a computing system including memory, processors, orchestration logic, agent modules, and a shared state representation configured to perform the foregoing operations
+- computer-readable-medium claims directed to instructions that cause one or more processors to perform the orchestration, feature synthesis, evaluation, governance, and export workflow
+- dependent-claim themes directed to temporal leakage protection, target-encoding safeguards, reproducibility hashing, bias-adjacent screening, SQL and Python dual-export, and closed-loop feedback refinement
+
+This section is intentionally phrased as drafting anchors rather than final claims. The formal claim set should be prepared and optimized in a counsel-controlled filing draft.
+
+## Candidate Abstract for Patent Drafting
+
+A computer-implemented feature engineering system receives tabular data and executes a multi-agent workflow including schema understanding, candidate feature ideation, feature construction, feature evaluation, feature selection, governance recording, and feedback optimization. A shared pipeline state carries semantic metadata, candidate definitions, constructed outputs, evaluation signals, and governance evidence across the workflow. The system automatically translates feature intent into executable Python and SQL artifacts, applies temporal-validity and leakage controls, ranks features using multiple statistical and model-based signals, and records lineage and reproducibility metadata for selected features. Feedback outputs may trigger iterative refinement of subsequent candidate features. The resulting system improves scalability, auditability, deployability, and governance of machine-learning feature engineering for tabular datasets.
+
+## Enablement and Best-Mode Notes
+
+This repository contains a working software implementation that materially supports enablement of the disclosed system. In particular:
+
+- the orchestrator provides a concrete control path through the invention lifecycle
+- agent modules provide representative functional decompositions of the disclosed architecture
+- configuration, data models, UI surfaces, and export modules demonstrate practical reduction to practice
+- the sample data generator supports repeatable demonstration of the invention workflow
+
+The best currently known implementation reflected in this repository is the coordinated use of the `FeatureEngineeringOrchestrator`, the typed `PipelineState`, the seven-agent execution model, the governance-record generation flow, and the Python/SQL export surfaces. If counsel prepares a formal specification, these elements should be preserved as at least one detailed embodiment even if broader claim language is pursued.
+
+## Filing Package Items Still Required
+
+To convert this README into a formal patent filing package, the following items should still be completed in a counsel-controlled application set:
+
+- a formal claim set
+- a formal abstract
+- standalone figure sheets and figure references
+- any required brief description of the drawings
+- application data sheet and fee/entity-status materials
+- inventor oath or declaration materials
+- counsel review for confidentiality, inventorship, claim scope, jurisdiction strategy, and prosecution wording
+
+Accordingly, this README should be treated as the core technical disclosure file for the patent effort, not as the sole submission artifact.
 
 ## Final Notice
 
-This repository should be treated as a proprietary invention record and implementation asset belonging to Yang (Rick) Wang, Ph.D. as repository owner/inventor. Any external publication, partner review, diligence process, or commercialization use should preserve the patent-pending and proprietary notices above and should be reviewed against the formal filing strategy and legal documentation associated with Yang (Rick) Wang, Ph.D.
+This repository should be treated as a proprietary invention record, reduction-to-practice record, and core technical disclosure asset belonging to Yang (Rick) Wang, Ph.D. as repository owner/inventor. Any external publication, partner review, diligence process, or commercialization use should preserve the patent-pending and proprietary notices above and should be reviewed against the formal filing strategy, application materials, and legal documentation associated with Yang (Rick) Wang, Ph.D.
